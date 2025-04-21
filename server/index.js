@@ -30,7 +30,6 @@ app.use(compression());
 app.use(cors());
 app.use(express.json());
 
-// Serve static files from the Vue app
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // API Routes
@@ -40,7 +39,6 @@ app.get('/api/posts', auth, postController.getAll);
 app.put('/api/posts/:id', auth, postController.update);
 app.delete('/api/posts/:id', auth, postController.delete);
 
-// Handle Vue routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
