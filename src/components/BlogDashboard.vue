@@ -17,9 +17,12 @@ const editingPost = ref<string | null>(null);
 const message = ref<string>('');
 const token = localStorage.getItem('token') as string;
 
+// URL de tu backend en Render
+const API_BASE_URL = 'https://mvc-blog-hz8l.onrender.com';
+
 const fetchPosts = async (): Promise<void> => {
   try {
-    const response = await fetch('http://localhost:3000/api/posts', {
+    const response = await fetch(`${API_BASE_URL}/api/posts`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -30,12 +33,13 @@ const fetchPosts = async (): Promise<void> => {
     }
   } catch (error) {
     message.value = 'Error fetching posts';
+    console.error('Fetch error:', error);
   }
 };
 
 const createPost = async (): Promise<void> => {
   try {
-    const response = await fetch('http://localhost:3000/api/posts', {
+    const response = await fetch(`${API_BASE_URL}/api/posts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,12 +55,13 @@ const createPost = async (): Promise<void> => {
     }
   } catch (error) {
     message.value = 'Error creating post';
+    console.error('Create error:', error);
   }
 };
 
 const updatePost = async (post: Post): Promise<void> => {
   try {
-    const response = await fetch(`http://localhost:3000/api/posts/${post._id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/posts/${post._id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -73,12 +78,13 @@ const updatePost = async (post: Post): Promise<void> => {
     }
   } catch (error) {
     message.value = 'Error updating post';
+    console.error('Update error:', error);
   }
 };
 
 const deletePost = async (postId: string): Promise<void> => {
   try {
-    const response = await fetch(`http://localhost:3000/api/posts/${postId}`, {
+    const response = await fetch(`${API_BASE_URL}/api/posts/${postId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${token}`
@@ -91,6 +97,7 @@ const deletePost = async (postId: string): Promise<void> => {
     }
   } catch (error) {
     message.value = 'Error deleting post';
+    console.error('Delete error:', error);
   }
 };
 
