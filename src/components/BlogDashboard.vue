@@ -101,11 +101,13 @@ const deletePost = async (postId: string): Promise<void> => {
   }
 };
 
+/*
 const logout = (): void => {
   localStorage.removeItem('token');
   localStorage.removeItem('userId');
   router.push('/');
 };
+*/
 
 onMounted((): void => {
   if (!token) router.push('/login');
@@ -115,128 +117,177 @@ onMounted((): void => {
 
 <template>
   <div class="dashboard">
-    <div class="header">
-      <h1>My Blog Dashboard</h1>
-      <button @click="logout" class="logout-btn">Logout</button>
-    </div>
-
-    <div class="new-post">
+    <section id="create-post" class="section">
       <h2>Create New Post</h2>
-      <form @submit.prevent="createPost">
+      <form @submit.prevent="createPost" class="post-form">
         <input
           v-model="newPost.title"
           placeholder="Title"
           required
+          class="input-field"
         />
         <textarea
           v-model="newPost.content"
           placeholder="Content"
           required
+          class="textarea-field"
         ></textarea>
-        <button type="submit">Create Post</button>
+        <button type="submit" class="submit-btn">Create Post</button>
       </form>
-    </div>
+    </section>
 
     <div v-if="message" class="message" :class="{ error: message.includes('Error') }">
       {{ message }}
     </div>
 
-    <div class="posts">
+    <section id="my-posts" class="section">
       <h2>My Posts</h2>
-      <div v-for="post in posts" :key="post._id" class="post">
-        <template v-if="editingPost === post._id">
-          <input v-model="post.title" />
-          <textarea v-model="post.content"></textarea>
-          <div class="actions">
-            <button @click="updatePost(post)">Save</button>
-            <button @click="editingPost = null">Cancel</button>
-          </div>
-        </template>
-        <template v-else>
-          <h3>{{ post.title }}</h3>
-          <p>{{ post.content }}</p>
-          <div class="actions">
-            <button @click="editingPost = post._id">Edit</button>
-            <button @click="deletePost(post._id)" class="delete">Delete</button>
-          </div>
-        </template>
+      <div class="posts-grid">
+        <div v-for="post in posts" :key="post._id" class="post-card">
+          <template v-if="editingPost === post._id">
+            <input v-model="post.title" class="input-field" />
+            <textarea v-model="post.content" class="textarea-field"></textarea>
+            <div class="post-actions">
+              <button @click="updatePost(post)" class="action-btn save">Save</button>
+              <button @click="editingPost = null" class="action-btn cancel">Cancel</button>
+            </div>
+          </template>
+          <template v-else>
+            <h3 class="post-title">{{ post.title }}</h3>
+            <p class="post-content">{{ post.content }}</p>
+            <div class="post-actions">
+              <button @click="editingPost = post._id" class="action-btn edit">Edit</button>
+              <button @click="deletePost(post._id)" class="action-btn delete">Delete</button>
+            </div>
+          </template>
+        </div>
       </div>
-    </div>
+    </section>
   </div>
 </template>
 
 <style scoped>
 .dashboard {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
+  width: 100%;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.logout-btn {
-  background-color: #dc3545;
-}
-
-.new-post {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: #fff;
+.section {
+  background: white;
   border-radius: 8px;
+  padding: 2rem;
+  margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.new-post form {
+.post-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-input, textarea {
+.input-field, .textarea-field {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
-textarea {
-  min-height: 100px;
+.textarea-field {
+  min-height: 150px;
   resize: vertical;
 }
 
-.post {
-  background: #fff;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.submit-btn {
+  background-color: #42b883;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-.actions {
+.submit-btn:hover {
+  background-color: #3aa876;
+}
+
+.posts-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.post-card {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.2s;
+}
+
+.post-card:hover {
+  transform: translateY(-2px);
+}
+
+.post-title {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+}
+
+.post-content {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.post-actions {
   display: flex;
   gap: 0.5rem;
-  margin-top: 1rem;
 }
 
-.delete {
+.action-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.action-btn.edit {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.action-btn.delete {
   background-color: #dc3545;
+  color: white;
+}
+
+.action-btn.save {
+  background-color: #28a745;
+  color: white;
+}
+
+.action-btn.cancel {
+  background-color: #6c757d;
+  color: white;
 }
 
 .message {
   padding: 1rem;
   margin: 1rem 0;
   border-radius: 4px;
-  background-color: #d4edda;
-  color: #155724;
+  text-align: center;
 }
 
 .message.error {
   background-color: #f8d7da;
   color: #721c24;
+}
+
+.message:not(.error) {
+  background-color: #d4edda;
+  color: #155724;
 }
 </style>
