@@ -14,6 +14,14 @@ const postSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  sentiment: {
+    score: Number,
+    comparative: Number,
+    tokens: [String],
+    words: [String],
+    positive: [String],
+    negative: [String]
+  },
   createdAt: {
     type: Date,
     default: Date.now

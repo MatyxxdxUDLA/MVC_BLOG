@@ -6,8 +6,18 @@ interface Post {
   _id: string;
   title: string;
   content: string;
+  sentiment?: Sentiment;
   createdAt?: string;
   updatedAt?: string;
+}
+
+interface Sentiment {
+  score: number;
+  comparative: number;
+  tokens: string[];
+  words: string[];
+  positive: string[];
+  negative: string[];
 }
 
 const router = useRouter();
@@ -109,6 +119,18 @@ const logout = (): void => {
 };
 */
 
+const getSentimentEmoji = (score: number): string => {
+  if (score > 1) return '😊';
+  if (score < -1) return '😔';
+  return '😐';
+};
+
+const getSentimentText = (score: number): string => {
+  if (score > 1) return 'Positivo';
+  if (score < -1) return 'Negativo';
+  return 'Neutral';
+};
+
 onMounted((): void => {
   if (!token) router.push('/login');
   fetchPosts();
@@ -155,6 +177,18 @@ onMounted((): void => {
           <template v-else>
             <h3 class="post-title">{{ post.title }}</h3>
             <p class="post-content">{{ post.content }}</p>
+            <div v-if="post.sentiment" class="sentiment-info">
+              <p class="sentiment-score">
+                Estado de ánimo: {{ getSentimentEmoji(post.sentiment.score) }} 
+                {{ getSentimentText(post.sentiment.score) }}
+              </p>
+              <div v-if="post.sentiment.positive.length" class="sentiment-words">
+                <strong>Palabras positivas:</strong> {{ post.sentiment.positive.join(', ') }}
+              </div>
+              <div v-if="post.sentiment.negative.length" class="sentiment-words">
+                <strong>Palabras negativas:</strong> {{ post.sentiment.negative.join(', ') }}
+              </div>
+            </div>
             <div class="post-actions">
               <button @click="editingPost = post._id" class="action-btn edit">Edit</button>
               <button @click="deletePost(post._id)" class="action-btn delete">Delete</button>
@@ -238,6 +272,24 @@ onMounted((): void => {
 .post-content {
   color: #666;
   margin-bottom: 1rem;
+}
+
+.sentiment-info {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+.sentiment-score {
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.sentiment-words {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.5rem 0;
 }
 
 .post-actions {

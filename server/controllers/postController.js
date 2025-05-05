@@ -5,7 +5,8 @@ export const postController = {
     try {
       const post = new Post({
         ...req.body,
-        author: req.user.id
+        author: req.user.id,
+        sentiment: req.sentiment
       });
       await post.save();
       res.json({ success: true, post });
@@ -28,7 +29,7 @@ export const postController = {
     try {
       const post = await Post.findOneAndUpdate(
         { _id: req.params.id, author: req.user.id },
-        req.body,
+        { ...req.body, sentiment: req.sentiment },
         { new: true }
       );
       if (!post) {

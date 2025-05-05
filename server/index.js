@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { authController } from './controllers/authController.js';
 import { postController } from './controllers/postController.js';
 import { auth } from './middleware/auth.js';
+import { analyzeSentiment } from './middleware/sentimentalAnalysis.js';
 import { initializeDefaultUser } from './models/User.js';
 import compression from 'compression';
 import path from 'path';
@@ -34,9 +35,9 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // API Routes
 app.post('/api/login', authController.login);
-app.post('/api/posts', auth, postController.create);
+app.post('/api/posts', auth, analyzeSentiment, postController.create);
 app.get('/api/posts', auth, postController.getAll);
-app.put('/api/posts/:id', auth, postController.update);
+app.put('/api/posts/:id', auth, analyzeSentiment, postController.update);
 app.delete('/api/posts/:id', auth, postController.delete);
 
 app.get('*', (req, res) => {
