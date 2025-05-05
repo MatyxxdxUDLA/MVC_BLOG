@@ -36,8 +36,9 @@ app.use(express.static(path.join(__dirname, '../dist')));
 // API Routes
 app.post('/api/login', authController.login);
 app.post('/api/posts', auth, analyzeSentiment, postController.create);
-app.get('/api/posts', auth, postController.getAll);
 app.put('/api/posts/:id', auth, analyzeSentiment, postController.update);
+app.get('/api/posts', auth, postController.getAll);
+app.get('/api/posts/search', auth, postController.search);
 app.delete('/api/posts/:id', auth, postController.delete);
 
 app.get('*', (req, res) => {

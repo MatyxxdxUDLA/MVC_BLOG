@@ -20,12 +20,14 @@ interface Sentiment {
   negative: string[];
 }
 
-const router = useRouter();
 const posts = ref<Post[]>([]);
 const newPost = ref<Omit<Post, '_id'>>({ title: '', content: '' });
 const editingPost = ref<string | null>(null);
 const message = ref<string>('');
+const router = useRouter();
 const token = localStorage.getItem('token') as string;
+const searchQuery = ref('');
+const searchEmotion = ref('');
 
 // URL de tu backend en Render
 const API_BASE_URL = 'https://mvc-blog-hz8l.onrender.com';
@@ -44,6 +46,26 @@ const fetchPosts = async (): Promise<void> => {
   } catch (error) {
     message.value = 'Error fetching posts';
     console.error('Fetch error:', error);
+  }
+};
+
+const searchPosts = async () => {
+  try {
+    const queryParams = new URLSearchParams();
+    if (searchQuery.value) queryParams.append('query', searchQuery.value);
+    if (searchEmotion.value) queryParams.append('emotion', searchEmotion.value);
+
+    const response = await fetch(`/api/posts/search?${queryParams}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+    if (data.success) {
+      posts.value = data.posts;
+    }
+  } catch (error) {
+    message.value = 'Error searching posts';
   }
 };
 
@@ -139,6 +161,25 @@ onMounted((): void => {
 
 <template>
   <div class="dashboard">
+    <section id="search-posts" class="section">
+      <h2>Search Posts</h2>
+      <div class="search-form">
+        <input
+          v-model="searchQuery"
+          placeholder="Search by keywords..."
+          class="input-field"
+        />
+        <select v-model="searchEmotion" class="input-field">
+          <option value="">All emotions</option>
+          <option value="Positivo">Positive</option>
+          <option value="Neutral">Neutral</option>
+          <option value="Negativo">Negative</option>
+        </select>
+        <button @click="searchPosts" class="search-btn">Search</button>
+        <button @click="fetchPosts" class="reset-btn">Reset</button>
+      </div>
+    </section>
+
     <section id="create-post" class="section">
       <h2>Create New Post</h2>
       <form @submit.prevent="createPost" class="post-form">
@@ -211,6 +252,30 @@ onMounted((): void => {
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-form {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.search-btn {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.reset-btn {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
 }
 
 .post-form {
