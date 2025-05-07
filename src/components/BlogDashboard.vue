@@ -25,11 +25,12 @@ const newPost = ref<Omit<Post, '_id'>>({ title: '', content: '' });
 const editingPost = ref<string | null>(null);
 const message = ref<string>('');
 const router = useRouter();
-const token = localStorage.getItem('token') as string;
 const searchQuery = ref('');
 const searchEmotion = ref('');
 
-// URL de tu backend en Render
+const token = localStorage.getItem('token') as string;
+
+// URL backend en Render
 const API_BASE_URL = 'https://mvc-blog-hz8l.onrender.com';
 
 const fetchPosts = async (): Promise<void> => {
@@ -57,12 +58,16 @@ const searchPosts = async () => {
 
     const response = await fetch(`/api/posts/search?${queryParams}`, {
       headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
     });
     const data = await response.json();
     if (data.success) {
       posts.value = data.posts;
+    }
+    else {
+      message.value = data.message;
     }
   } catch (error) {
     message.value = 'Error searching posts';
