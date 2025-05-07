@@ -170,10 +170,10 @@ onMounted((): void => {
           class="input-field"
         />
         <select v-model="searchEmotion" class="input-field">
-          <option value="">All emotions</option>
-          <option value="Positivo">Positive</option>
+          <option value="">Todas las emociones</option>
+          <option value="Positivo">Positivo</option>
           <option value="Neutral">Neutral</option>
-          <option value="Negativo">Negative</option>
+          <option value="Negativo">Negativo</option>
         </select>
         <button @click="searchPosts" class="search-btn">Search</button>
         <button @click="fetchPosts" class="reset-btn">Reset</button>
