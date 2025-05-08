@@ -1,12 +1,12 @@
 <template>
-    <nav class="navigation" v-if="$route.path === '/dashboard'">
+    <nav class="navigation" v-if="$route.path === '/dashboard' || $route.path === '/stats'">
       <div class="nav-content">
         <ul>
           <li>
-            <a href="#create-post" class="nav-link">Create Post</a>
+          <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
           </li>
           <li>
-            <a href="#my-posts" class="nav-link">My Posts</a>
+            <router-link to="/stats" class="nav-link">Emotional Stats</router-link>
           </li>
         </ul>
       </div>
@@ -46,4 +46,8 @@
   .nav-link:hover {
     background-color: #e9ecef;
   }
+
+  .router-link-active {
+  background-color: #e9ecef;
+}
   </style>

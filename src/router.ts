@@ -1,12 +1,18 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import LoginForm from './components/LoginForm.vue';
 import BlogDashboard from './components/BlogDashboard.vue';
+import EmotionalStats from './components/EmotionalStats.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
   { 
     path: '/dashboard', 
     component: BlogDashboard,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/stats',
+    component: EmotionalStats,
     meta: { requiresAuth: true }
   }
 ];

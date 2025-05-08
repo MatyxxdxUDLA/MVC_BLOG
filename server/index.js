@@ -3,6 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { authController } from './controllers/authController.js';
 import { postController } from './controllers/postController.js';
+import { statsController } from './controllers/statsController.js';
 import { auth } from './middleware/auth.js';
 import { analyzeSentiment } from './middleware/sentimentalAnalysis.js';
 import { initializeDefaultUser } from './models/User.js';
@@ -40,6 +41,7 @@ app.put('/api/posts/:id', auth, analyzeSentiment, postController.update);
 app.get('/api/posts', auth, postController.getAll);
 app.get('/api/posts/search', auth, postController.search);
 app.delete('/api/posts/:id', auth, postController.delete);
+app.get('/api/stats/emotional', auth, statsController.getEmotionalStats);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
