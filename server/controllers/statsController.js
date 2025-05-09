@@ -4,7 +4,6 @@ import { Emotion } from '../models/Emotion.js';
 export const statsController = {
   getEmotionalStats: async (req, res) => {
     try {
-      // Get emotions grouped by date
       const emotions = await Emotion.aggregate([
         { $match: { post: { $in: await Post.find({ author: req.user.id }).distinct('_id') } } },
         {
