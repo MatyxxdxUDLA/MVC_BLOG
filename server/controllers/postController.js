@@ -11,14 +11,12 @@ export const postController = {
       });
       await post.save();
 
-      if (req.sentiment) {
-        const emotion = new Emotion({
-          name: req.sentiment.score > 1 ? 'Positivo' : req.sentiment.score < -1 ? 'Negativo' : 'Neutral',
-          score: req.sentiment.score,
-          post: post._id
-        });
-        await emotion.save();
-      }
+      const emotion = new Emotion({
+        name: req.body.emotion,
+        score: req.body.emotion === 'Positivo' ? 2 : req.body.emotion === 'Negativo' ? -2 : 0,
+        post: post._id
+      });
+      await emotion.save();
       
       res.json({ success: true, post });
     } catch (error) {
@@ -30,7 +28,15 @@ export const postController = {
     try {
       const posts = await Post.find({ author: req.user.id })
         .sort({ createdAt: -1 });
-      res.json({ success: true, posts });
+
+      const emotions = await Emotion.find({ post: { $in: posts.map(post => post._id) } });
+
+      const postsWithEmotions = posts.map(post => ({
+        ...post.toObject(),
+        emotion: emotions.find(e => e.post.toString() === post._id.toString())
+      }));
+
+      res.json({ success: true, posts: postsWithEmotions });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -43,8 +49,7 @@ export const postController = {
 
       if (emotion) {
         const emotions = await Emotion.find({ 
-          name: emotion,
-          score: emotion === 'Positivo' ? { $gt: 1 } : emotion === 'Negativo' ? { $lt: -1 } : { $gte: -1, $lte: 1 }
+          name: emotion
         }).populate('post');
         posts = emotions.map(e => e.post).filter(post => post.author.toString() === req.user.id);
       }
@@ -63,7 +68,16 @@ export const postController = {
         ) : await Post.find(searchQuery);
       }
 
-      res.json({ success: true, posts });
+      const emotions = await Emotion.find({
+        post: { $in: posts.map(post => post._id) }
+      });
+
+      const postsWithEmotions = posts.map(post => ({
+        ...post.toObject(),
+        emotion: emotions.find(e => e.post.toString() === post._id.toString())
+      }));
+
+      res.json({ success: true, posts: postsWithEmotions });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -80,16 +94,14 @@ export const postController = {
         return res.status(404).json({ success: false, message: 'Post not found' });
       }
 
-      if (req.sentiment) {
-        await Emotion.findOneAndUpdate(
-          { post: post._id },
-          {
-            name: req.sentiment.score > 1 ? 'Positivo' : req.sentiment.score < -1 ? 'Negativo' : 'Neutral',
-            score: req.sentiment.score
-          },
-          { upsert: true }
-        );
-      }
+      await Emotion.findOneAndUpdate(
+        { post: post._id },
+        {
+          name: req.body.emotion,
+          score: req.body.emotion === 'Positivo' ? 2 : req.body.emotion === 'Negativo' ? -2 : 0
+        },
+        { upsert: true }
+      );
 
       res.json({ success: true, post });
     } catch (error) {

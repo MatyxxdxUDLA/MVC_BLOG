@@ -1,3 +1,4 @@
+/*
 import sentiment from 'sentiment-spanish';
 
 export const analyzeSentiment = (req, res, next) => {
@@ -21,3 +22,5 @@ export const analyzeSentiment = (req, res, next) => {
     next();
   }
 };
+
+*/

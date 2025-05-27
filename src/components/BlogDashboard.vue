@@ -2,26 +2,23 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
+interface Emotion {
+  _id: string;
+  name: string;
+  score: number;
+  post: string;
+}
+
 interface Post {
   _id: string;
   title: string;
   content: string;
-  sentiment?: Sentiment;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-interface Sentiment {
-  score: number;
-  comparative: number;
-  tokens: string[];
-  words: string[];
-  positive: string[];
-  negative: string[];
+  emotion?: Emotion;
+  createdAt: string;
 }
 
 const posts = ref<Post[]>([]);
-const newPost = ref<Omit<Post, '_id'>>({ title: '', content: '' });
+const newPost = ref({ title: '', content: '', emotion: 'Neutral' });
 const editingPost = ref<string | null>(null);
 const message = ref<string>('');
 const router = useRouter();
@@ -87,7 +84,7 @@ const createPost = async (): Promise<void> => {
     const data = await response.json();
     if (data.success) {
       posts.value.unshift(data.post as Post);
-      newPost.value = { title: '', content: '' };
+      newPost.value = { title: '', content: '', emotion: 'Neutral' };
       message.value = 'Post created successfully';
     }
   } catch (error) {
@@ -146,16 +143,11 @@ const logout = (): void => {
 };
 */
 
-const getSentimentEmoji = (score: number): string => {
-  if (score > 1) return '😊';
-  if (score < -1) return '😔';
+const getEmotionEmoji = (emotion: Emotion | undefined): string => {
+  if (!emotion) return '😐';
+  if (emotion.name === 'Positivo') return '😊';
+  if (emotion.name === 'Negativo') return '😔';
   return '😐';
-};
-
-const getSentimentText = (score: number): string => {
-  if (score > 1) return 'Positivo';
-  if (score < -1) return 'Negativo';
-  return 'Neutral';
 };
 
 onMounted((): void => {
@@ -200,6 +192,11 @@ onMounted((): void => {
           required
           class="textarea-field"
         ></textarea>
+        <select v-model="newPost.emotion" class="input-field">
+          <option value="Positivo">Positive 😊</option>
+          <option value="Neutral">Neutral 😐</option>
+          <option value="Negativo">Negative 😔</option>
+        </select>
         <button type="submit" class="submit-btn">Create Post</button>
       </form>
     </section>
@@ -215,26 +212,29 @@ onMounted((): void => {
           <template v-if="editingPost === post._id">
             <input v-model="post.title" class="input-field" />
             <textarea v-model="post.content" class="textarea-field"></textarea>
+            <select v-model="post.emotion" class="input-field">
+              <option value="Positivo">Positive 😊</option>
+              <option value="Neutral">Neutral 😐</option>
+              <option value="Negativo">Negative 😔</option>
+            </select>
+
             <div class="post-actions">
               <button @click="updatePost(post)" class="action-btn save">Save</button>
               <button @click="editingPost = null" class="action-btn cancel">Cancel</button>
             </div>
           </template>
+
           <template v-else>
             <h3 class="post-title">{{ post.title }}</h3>
             <p class="post-content">{{ post.content }}</p>
-            <div v-if="post.sentiment" class="sentiment-info">
-              <p class="sentiment-score">
-                Estado de ánimo: {{ getSentimentEmoji(post.sentiment.score) }} 
-                {{ getSentimentText(post.sentiment.score) }}
+
+            <div class="emotion-info">
+              <p class="emotion-score">
+                Emotional State: {{ getEmotionEmoji(post.emotion) }} 
+                {{ post.emotion?.name || 'Neutral' }}
               </p>
-              <div v-if="post.sentiment.positive.length" class="sentiment-words">
-                <strong>Palabras positivas:</strong> {{ post.sentiment.positive.join(', ') }}
-              </div>
-              <div v-if="post.sentiment.negative.length" class="sentiment-words">
-                <strong>Palabras negativas:</strong> {{ post.sentiment.negative.join(', ') }}
-              </div>
             </div>
+
             <div class="post-actions">
               <button @click="editingPost = post._id" class="action-btn edit">Edit</button>
               <button @click="deletePost(post._id)" class="action-btn delete">Delete</button>
@@ -344,22 +344,16 @@ onMounted((): void => {
   margin-bottom: 1rem;
 }
 
-.sentiment-info {
+.emotion-info {
   background: #f8f9fa;
   padding: 1rem;
   border-radius: 4px;
   margin: 1rem 0;
 }
 
-.sentiment-score {
+.emotion-score {
   font-size: 1.2rem;
-  margin: 0 0 0.5rem 0;
-}
-
-.sentiment-words {
-  font-size: 0.9rem;
-  color: #666;
-  margin: 0.5rem 0;
+  margin: 0;
 }
 
 .post-actions {
