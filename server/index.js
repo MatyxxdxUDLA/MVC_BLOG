@@ -5,7 +5,6 @@ import { authController } from './controllers/authController.js';
 import { postController } from './controllers/postController.js';
 import { statsController } from './controllers/statsController.js';
 import { auth } from './middleware/auth.js';
-import { analyzeSentiment } from './middleware/sentimentalAnalysis.js';
 import { initializeDefaultUser } from './models/User.js';
 import compression from 'compression';
 import path from 'path';
