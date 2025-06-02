@@ -6,8 +6,9 @@ export const authController = {
       const { email, password } = req.body;
       const user = await User.findOne({ email });
       
+      // Verifica credenciales
       if (user && user.password === password) {
-        const token = user.generateToken();
+        const token = user.generateToken(); // Genera JWT
         res.json({ 
           success: true, 
           message: 'Login successful',
