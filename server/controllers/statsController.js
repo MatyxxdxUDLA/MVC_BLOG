@@ -29,7 +29,7 @@ export const statsController = {
                 count: "$count"
               }
             },
-            averageScore: { $avg: "$averageScore" } // Puntuación media del día
+            averageScore: { $avg: "$averageScore" }
           }
         },
         { $sort: { "_id": 1 } } // Ordena por fecha ascendente
