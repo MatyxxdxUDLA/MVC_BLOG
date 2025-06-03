@@ -47,6 +47,10 @@ const fetchEmotionalStats = async () => {
 };
 
 const analyzeEmotionsByDateRange = async () => {
+  if (!startDate.value || !endDate.value) {
+    message.value = 'Selecciona ambas fechas para el análisis';
+    return;
+  }
   const token = localStorage.getItem('token');
   try {
     const response = await fetch(

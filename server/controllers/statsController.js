@@ -75,7 +75,9 @@ export const statsController = {
         { $sort: { count: -1 } } // Ordena por cantidad de emociones
       ]);
 
-      const mostFrequent = emotions.length > 0 ? emotions[0] : null;
+      const mostFrequent = emotions.reduce((max, emotion) => {
+        return (emotion.count > max.count) ? emotion : max;
+      }, { count: 0 });
 
       res.json({ 
         success: true, 
