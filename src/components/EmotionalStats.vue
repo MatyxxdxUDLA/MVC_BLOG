@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 
+//Interfaz para tipar las tendencias emocionales
 interface EmotionTrend {
   date: string;
   averageScore: number;
@@ -11,11 +12,22 @@ interface EmotionTrend {
   };
 }
 
-const emotionalTrends = ref<EmotionTrend[]>([]);
-const message = ref('');
+interface DateRange {
+  _id: string;
+  count: number;
+}
 
+//Datos
+const emotionalTrends = ref<EmotionTrend[]>([]);  //Almacena las estadísticas emocionales
+const message = ref('');                          //Mensaje error o éxito
+const startDate = ref('');
+const endDate = ref('');
+const dateRange = ref<DateRange[]>([]); //Almacena el rango de fechas para filtrar
+const mostFrequent = ref<DateRange | null>(null); //Almacena la fecha más frecuente
+
+//Función para obtener las estadísticas emocionales desde la API
 const fetchEmotionalStats = async () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token'); //Token JWT
   try {
     const response = await fetch('/api/stats/emotional', {
       headers: {
@@ -25,15 +37,40 @@ const fetchEmotionalStats = async () => {
     });
     const data = await response.json();
     if (data.success) {
-      emotionalTrends.value = data.stats;
+      emotionalTrends.value = data.stats; //Actualiza los datos de tendencias emocionales
+    } else {
+      message.value = data.message;       // Mensaje de error del backend
+    }
+  } catch (error) {
+    message.value = 'Error fetching emotional statistics';  // Error de conexión
+  }
+};
+
+const analyzeEmotionsByDateRange = async () => {
+  const token = localStorage.getItem('token');
+  try {
+    const response = await fetch(
+      `/api/stats/emotions-range?startDate=${startDate.value}&endDate=${endDate.value}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    const data = await response.json();
+    if (data.success) {
+      dateRange.value = data.emotions;
+      mostFrequent.value = data.mostFrequent;
     } else {
       message.value = data.message;
     }
   } catch (error) {
-    message.value = 'Error fetching emotional statistics';
+    message.value = 'Error analyzing emotions by date range';
   }
 };
 
+// Al montar el componente, carga los datos
 onMounted(fetchEmotionalStats);
 </script>
 
@@ -41,11 +78,62 @@ onMounted(fetchEmotionalStats);
   <div class="stats-container">
     <h2>Emotional Progress Dashboard</h2>
     
+    <!-- Mensajes de estado -->
     <div v-if="message" class="message" :class="{ error: message.includes('Error') }">
       {{ message }}
     </div>
 
+    <div class="date-range-analysis">
+      <h3>Analyze Emotions by Date Range</h3>
+      <div class="date-inputs">
+        <div class="input-group">
+          <label for="startDate">Start Date:</label>
+          <input 
+            type="date" 
+            id="startDate" 
+            v-model="startDate"
+            class="date-input"
+          />
+        </div>
+        <div class="input-group">
+          <label for="endDate">End Date:</label>
+          <input 
+            type="date" 
+            id="endDate" 
+            v-model="endDate"
+            class="date-input"
+          />
+        </div>
+        <button @click="analyzeEmotionsByDateRange" class="analyze-btn">
+          Analyze
+        </button>
+      </div>
+
+      <div v-if="mostFrequent" class="analysis-results">
+        <h4>Analysis Results</h4>
+        <p class="most-frequent">
+          Most Frequent Emotion: 
+          <span class="emotion-name">
+            {{ mostFrequent._id }}
+            {{ mostFrequent._id === 'Positivo' ? '😊' : 
+               mostFrequent._id === 'Negativo' ? '😔' : '😐' }}
+          </span>
+          ({{ mostFrequent.count }} times)
+        </p>
+        <div class="emotion-breakdown">
+          <h5>Emotion Breakdown:</h5>
+          <ul>
+            <li v-for="emotion in dateRange" :key="emotion._id">
+              {{ emotion._id }}: {{ emotion.count }} times
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid de visualización -->
     <div class="stats-grid">
+      <!-- Tarjeta 1: Distribución de emociones -->
       <div class="stat-card">
         <h3>Emotional Distribution</h3>
         <div class="emotion-distribution">
@@ -78,9 +166,12 @@ onMounted(fetchEmotionalStats);
         </div>
       </div>
 
+      <!-- Tarjeta 2: Tendencias -->
       <div class="stat-card">
         <h3>Emotional Trend</h3>
         <div class="trend-graph">
+
+          <!-- Puntos del gráfico posicionados dinámicamente -->
           <div 
             v-for="(trend, index) in emotionalTrends" 
             :key="trend.date"

@@ -177,6 +177,7 @@ onMounted((): void => {
       </div>
     </section>
 
+    <!-- Formulario de Creación -->
     <section id="create-post" class="section">
       <h2>Create New Post</h2>
       <form @submit.prevent="createPost" class="post-form">
@@ -201,14 +202,17 @@ onMounted((): void => {
       </form>
     </section>
 
+    <!-- Mensajes de Estado -->
     <div v-if="message" class="message" :class="{ error: message.includes('Error') }">
       {{ message }}
     </div>
 
+    <!-- Lista de Posts -->
     <section id="my-posts" class="section">
       <h2>My Posts</h2>
       <div class="posts-grid">
         <div v-for="post in posts" :key="post._id" class="post-card">
+          <!-- Modo Edición -->
           <template v-if="editingPost === post._id">
             <input v-model="post.title" class="input-field" />
             <textarea v-model="post.content" class="textarea-field"></textarea>
@@ -224,6 +228,7 @@ onMounted((): void => {
             </div>
           </template>
 
+          <!-- Modo Visualización -->
           <template v-else>
             <h3 class="post-title">{{ post.title }}</h3>
             <p class="post-content">{{ post.content }}</p>

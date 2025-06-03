@@ -50,5 +50,42 @@ export const statsController = {
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
+  },
+
+  getEmotionsRangeDate: async (req, res) => {
+    try{
+      const { startDate, endDate } = req.query;
+      const emotions = await Emotion.aggregate([
+        // Filtra emociones de posts del usuario actual y por rango de fechas
+        { $match: { 
+            post: { $in: await Post.find({ author: req.user.id }).distinct('_id') },
+            createdAt: {
+              $gte: new Date(startDate),
+              $lte: new Date(endDate)
+            }
+          } 
+        },
+        // Agrupa por fecha y emoción
+        {
+          $group: {
+            _id: "name",
+            count: { $sum: 1 },               // Cuenta ocurrencias
+          }
+        },
+        { $sort: { count: -1 } } // Ordena por cantidad de emociones
+      ]);
+
+      const mostFrequent = emotions.length > 0 ? emotions[0] : null;
+
+      res.json({ 
+        success: true, 
+        emotions,
+        mostFrequent,
+        period: {startDate, endDate}
+      });
+    } catch (error) {
+      res.status(500).json({ success: false, message: error.message });
+
+    }
   }
 };

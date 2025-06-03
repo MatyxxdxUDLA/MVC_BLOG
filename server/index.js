@@ -44,6 +44,7 @@ app.get('/api/posts', auth, postController.getAll);
 app.get('/api/posts/search', auth, postController.search);
 app.delete('/api/posts/:id', auth, postController.delete);
 app.get('/api/stats/emotional', auth, statsController.getEmotionalStats);
+app.get('/api/stats/emotions-range', auth, statsController.getEmotionsRangeDate);
 
 // Manejo de rutas del frontend (Vue Router)
 app.get('*', (req, res) => {
