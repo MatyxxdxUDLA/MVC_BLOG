@@ -66,7 +66,7 @@ const analyzeEmotionsByDateRange = async () => {
       message.value = data.message;
     }
   } catch (error) {
-    message.value = 'Error analyzing emotions by date range';
+    message.value = 'Error al analizar emociones por rango de fechas';
   }
 };
 
@@ -120,14 +120,6 @@ onMounted(fetchEmotionalStats);
           </span>
           ({{ mostFrequent.count }} times)
         </p>
-        <div class="emotion-breakdown">
-          <h5>Emotion Breakdown:</h5>
-          <ul>
-            <li v-for="emotion in dateRange" :key="emotion._id">
-              {{ emotion._id }}: {{ emotion.count }} times
-            </li>
-          </ul>
-        </div>
       </div>
     </div>
 
