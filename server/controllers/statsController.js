@@ -5,21 +5,22 @@ export const statsController = {
   // Obtiene estadísticas emocionales agrupadas por fecha
   getEmotionalStats: async (req, res) => {
     try {
+      // Obtener post de usuarios
+      const userPosts = await Post.find({ author: req.user.id }).select('_id');
+      const postIds = userPosts.map(post => post._id);
+
       const emotions = await Emotion.aggregate([
-        // Filtra emociones de posts del usuario actual
-        { $match: { post: { $in: await Post.find({ author: req.user.id }).distinct('_id') } } },
-        // Agrupa por fecha y emoción
+        { $match: { post: { $in: postIds } } },
         {
           $group: {
             _id: {
               date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
               name: "$name"
             },
-            count: { $sum: 1 },               // Cuenta ocurrencias
-            averageScore: { $avg: "$score" }  // Calcula puntuación media
+            count: { $sum: 1 },
+            averageScore: { $avg: "$score" }
           }
         },
-        // Reagrupa por fecha para consolidar emociones
         {
           $group: {
             _id: "$_id.date",
@@ -32,7 +33,7 @@ export const statsController = {
             averageScore: { $avg: "$averageScore" }
           }
         },
-        { $sort: { "_id": 1 } } // Ordena por fecha ascendente
+        { $sort: { "_id": 1 } }
       ]);
 
       // Transforma los datos para el frontend
@@ -55,29 +56,40 @@ export const statsController = {
   getEmotionsRangeDate: async (req, res) => {
     try{
       const { startDate, endDate } = req.query;
+      if (!startDate || !endDate) {
+        return res.status(400).json({ success: false, message: 'Rango de fechas inválido' });
+      }
+      // Obtener posts del usuario autenticado
+      const userPosts = await Post.find({ author: req.user.id }).select('_id');
+      const postIds = userPosts.map(post => post._id);
+
+      console.log('Post usuario:', postIds.length);
+      console.log('Rango fechas:', startDate, 'to', endDate);
+
+
       const emotions = await Emotion.aggregate([
-        // Filtra emociones de posts del usuario actual y por rango de fechas
-        { $match: { 
-            post: { $in: await Post.find({ author: req.user.id }).distinct('_id') },
-            createdAt: {
-              $gte: new Date(startDate),
-              $lte: new Date(endDate)
-            }
-          } 
-        },
-        // Agrupa por fecha y emoción
         {
-          $group: {
-            _id: "name",
-            count: { $sum: 1 },               // Cuenta ocurrencias
+          $match: {
+            post: { $in: postIds },
+            createdAt: {
+              $gte: new Date(startDate + 'T00:00:00.000Z'),
+              $lte: new Date(endDate + 'T23:59:59.999Z')
+            }
           }
         },
-        { $sort: { count: -1 } } // Ordena por cantidad de emociones
+        {
+          $group: {
+            _id: "$name",
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } }
       ]);
 
-      const mostFrequent = emotions.reduce((max, emotion) => {
-        return (emotion.count > max.count) ? emotion : max;
-      }, { count: 0 });
+      console.log('Emotions found:', emotions);
+
+      //Encontrar la emoción más frecuente
+      const mostFrequent = emotions.length > 0 ? emotions[0] : { _id: 'No se encontró emociones', count: 0 };
 
       res.json({ 
         success: true, 
@@ -86,8 +98,8 @@ export const statsController = {
         period: {startDate, endDate}
       });
     } catch (error) {
+      console.error('Error en getEmotionsByDateRange:', error);
       res.status(500).json({ success: false, message: error.message });
-
     }
   }
 };

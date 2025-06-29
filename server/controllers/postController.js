@@ -19,8 +19,14 @@ export const postController = {
         post: post._id
       });
       await emotion.save();
+
+      // Retornar emoción junto con el post
+      const postWithEmotion = {
+        ...post.toObject(),
+        emotion: emotion
+      };
       
-      res.json({ success: true, post });
+      res.json({ success: true, post: postWithEmotion });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -58,7 +64,7 @@ export const postController = {
         const emotions = await Emotion.find({ 
           name: emotion
         }).populate('post');
-        posts = emotions.map(e => e.post).filter(post => post.author.toString() === req.user.id);
+        posts = emotions.map(e => e.post).filter(post => post && post.author.toString() === req.user.id);
       }
 
       // Filtra por búsqueda de texto (regex insensible a mayúsculas)
@@ -101,7 +107,7 @@ export const postController = {
         { new: true } // Devuelve el post actualizado
       );
       if (!post) {
-        return res.status(404).json({ success: false, message: 'Post not found' });
+        return res.status(404).json({ success: false, message: 'Post no encontrado' });
       }
 
       // Actualiza o crea la emoción asociada
@@ -111,10 +117,16 @@ export const postController = {
           name: req.body.emotion,
           score: req.body.emotion === 'Positivo' ? 2 : req.body.emotion === 'Negativo' ? -2 : 0
         },
-        { upsert: true }  // Si no existe, la crea
+        { upsert: true, new: true }  // Si no existe, la crea
       );
 
-      res.json({ success: true, post });
+      // Return the post with the updated emotion
+      const postWithEmotion = {
+        ...post.toObject(),
+        emotion: updatedEmotion
+      };
+
+      res.json({ success: true, post: postWithEmotion });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -129,11 +141,11 @@ export const postController = {
       });
 
       if (!post) {
-        return res.status(404).json({ success: false, message: 'Post not found' });
+        return res.status(404).json({ success: false, message: 'Post no encontrado' });
       }
 
       await Emotion.deleteOne({ post: post._id });
-      res.json({ success: true, message: 'Post deleted' });
+      res.json({ success: true, message: 'Post eliminado' });
     } catch (error) {
       res.status(500).json({ success: false, message: error.message });
     }

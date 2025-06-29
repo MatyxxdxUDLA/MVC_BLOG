@@ -67,7 +67,7 @@ const searchPosts = async () => {
       message.value = data.message;
     }
   } catch (error) {
-    message.value = 'Error searching posts';
+    message.value = 'Error buscando posts';
   }
 };
 
@@ -83,13 +83,19 @@ const createPost = async (): Promise<void> => {
     });
     const data = await response.json();
     if (data.success) {
+
       posts.value.unshift(data.post as Post);
       newPost.value = { title: '', content: '', emotion: 'Neutral' };
       message.value = 'Post created successfully';
+
+      // Borrar el mensaje después de 3 segundos
+      setTimeout(() => {
+        message.value = '';
+      }, 3000);
     }
   } catch (error) {
-    message.value = 'Error creating post';
-    console.error('Create error:', error);
+    message.value = 'Error creando post';
+    console.error('Crear error:', error);
   }
 };
 
@@ -101,18 +107,27 @@ const updatePost = async (post: Post): Promise<void> => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(post)
+      body: JSON.stringify({
+        title: post.title,
+        content: post.content,
+        emotion: post.emotion?.name || 'Neutral'
+      })
     });
     const data = await response.json();
     if (data.success) {
       const index = posts.value.findIndex((p: Post) => p._id === post._id);
       posts.value[index] = data.post as Post;
       editingPost.value = null;
-      message.value = 'Post updated successfully';
+      message.value = 'Post actualizado con éxito';
+
+      // Borrar el mensaje después de 3 segundos
+      setTimeout(() => {
+        message.value = '';
+      }, 3000);
     }
   } catch (error) {
-    message.value = 'Error updating post';
-    console.error('Update error:', error);
+    message.value = 'Error actualizando post';
+    console.error('Actualizar error:', error);
   }
 };
 
@@ -127,11 +142,16 @@ const deletePost = async (postId: string): Promise<void> => {
     const data = await response.json();
     if (data.success) {
       posts.value = posts.value.filter((p: Post) => p._id !== postId);
-      message.value = 'Post deleted successfully';
+      message.value = 'Post eliminado con éxito';
+
+      // Borrar el mensaje después de 3 segundos
+      setTimeout(() => {
+        message.value = '';
+      }, 3000);
     }
   } catch (error) {
-    message.value = 'Error deleting post';
-    console.error('Delete error:', error);
+    message.value = 'Error eliminando post';
+    console.error('Eliminar error:', error);
   }
 };
 
@@ -154,6 +174,7 @@ onMounted((): void => {
   if (!token) router.push('/login');
   fetchPosts();
 });
+
 </script>
 
 <template>
@@ -163,21 +184,20 @@ onMounted((): void => {
       <div class="search-form">
         <input
           v-model="searchQuery"
-          placeholder="Search by keywords..."
+          placeholder="Buscar palabras clave..."
           class="input-field"
         />
         <select v-model="searchEmotion" class="input-field">
-          <option value="">Todas las emociones</option>
-          <option value="Positivo">Positivo</option>
+          <option value="">All emotions</option>
+          <option value="Positivo">Positive</option>
           <option value="Neutral">Neutral</option>
-          <option value="Negativo">Negativo</option>
+          <option value="Negativo">Negative</option>
         </select>
         <button @click="searchPosts" class="search-btn">Search</button>
         <button @click="fetchPosts" class="reset-btn">Reset</button>
       </div>
     </section>
 
-    <!-- Formulario de Creación -->
     <section id="create-post" class="section">
       <h2>Create New Post</h2>
       <form @submit.prevent="createPost" class="post-form">
@@ -198,51 +218,43 @@ onMounted((): void => {
           <option value="Neutral">Neutral 😐</option>
           <option value="Negativo">Negative 😔</option>
         </select>
-        <button type="submit" class="submit-btn">Create Post</button>
+        <button type="submit" class="submit-btn">Crear Post</button>
       </form>
     </section>
 
-    <!-- Mensajes de Estado -->
     <div v-if="message" class="message" :class="{ error: message.includes('Error') }">
       {{ message }}
     </div>
 
-    <!-- Lista de Posts -->
     <section id="my-posts" class="section">
-      <h2>My Posts</h2>
+      <h2>Mis Post</h2>
       <div class="posts-grid">
         <div v-for="post in posts" :key="post._id" class="post-card">
-          <!-- Modo Edición -->
           <template v-if="editingPost === post._id">
             <input v-model="post.title" class="input-field" />
             <textarea v-model="post.content" class="textarea-field"></textarea>
-            <select v-model="post.emotion" class="input-field">
+            <select v-model="post.emotion?.name" class="input-field">
               <option value="Positivo">Positive 😊</option>
               <option value="Neutral">Neutral 😐</option>
               <option value="Negativo">Negative 😔</option>
             </select>
-
             <div class="post-actions">
-              <button @click="updatePost(post)" class="action-btn save">Save</button>
-              <button @click="editingPost = null" class="action-btn cancel">Cancel</button>
+              <button @click="updatePost(post)" class="action-btn save">Guardar</button>
+              <button @click="editingPost = null" class="action-btn cancel">Cancelar</button>
             </div>
           </template>
-
-          <!-- Modo Visualización -->
           <template v-else>
             <h3 class="post-title">{{ post.title }}</h3>
             <p class="post-content">{{ post.content }}</p>
-
             <div class="emotion-info">
               <p class="emotion-score">
-                Emotional State: {{ getEmotionEmoji(post.emotion) }} 
+                Estado emocional: {{ getEmotionEmoji(post.emotion) }} 
                 {{ post.emotion?.name || 'Neutral' }}
               </p>
             </div>
-
             <div class="post-actions">
-              <button @click="editingPost = post._id" class="action-btn edit">Edit</button>
-              <button @click="deletePost(post._id)" class="action-btn delete">Delete</button>
+              <button @click="editingPost = post._id" class="action-btn edit">Editar</button>
+              <button @click="deletePost(post._id)" class="action-btn delete">Eliminar</button>
             </div>
           </template>
         </div>
