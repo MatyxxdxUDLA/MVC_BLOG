@@ -6,7 +6,7 @@
           <router-link to="/dashboard" class="nav-link">Dashboard</router-link>
           </li>
           <li>
-            <router-link to="/stats" class="nav-link">Emotional Stats</router-link>
+            <router-link to="/stats" class="nav-link">Estadísticas</router-link>
           </li>
         </ul>
       </div>

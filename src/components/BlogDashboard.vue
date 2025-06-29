@@ -45,7 +45,7 @@ const fetchPosts = async (): Promise<void> => {
       posts.value = data.posts as Post[];
     }
   } catch (error) {
-    message.value = 'Error fetching posts';
+    message.value = 'Error encontrando posts';
     console.error('Fetch error:', error);
   }
 };
@@ -183,7 +183,7 @@ onMounted((): void => {
 <template>
   <div class="dashboard">
     <section id="search-posts" class="section">
-      <h2>Search Posts</h2>
+      <h2>Buscar Posts</h2>
       <div class="search-form">
         <input
           v-model="searchQuery"
@@ -202,7 +202,7 @@ onMounted((): void => {
     </section>
 
     <section id="create-post" class="section">
-      <h2>Create New Post</h2>
+      <h2>Crear Nuevo Post</h2>
       <form @submit.prevent="createPost" class="post-form">
         <input
           v-model="newPost.title"

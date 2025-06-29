@@ -80,7 +80,7 @@ onMounted(fetchEmotionalStats);
 
 <template>
   <div class="stats-container">
-    <h2>Emotional Progress Dashboard</h2>
+    <h2>Progreso Emocional</h2>
     
     <!-- Mensajes de estado -->
     <div v-if="message" class="message" :class="{ error: message.includes('Error') }">
@@ -88,7 +88,7 @@ onMounted(fetchEmotionalStats);
     </div>
 
     <div class="date-range-analysis">
-      <h3>Analyze Emotions by Date Range</h3>
+      <h3>Analizar emociones por Rango de Fechas</h3>
       <div class="date-inputs">
         <div class="input-group">
           <label for="startDate">Start Date:</label>
@@ -114,9 +114,9 @@ onMounted(fetchEmotionalStats);
       </div>
 
       <div v-if="mostFrequent" class="analysis-results">
-        <h4>Analysis Results</h4>
+        <h4>Análisis de Resultados</h4>
         <p class="most-frequent">
-          Most Frequent Emotion: 
+          Emoción más frecuente entre {{ startDate }} y {{ endDate }}: 
           <span class="emotion-name">
             {{ mostFrequent._id }}
             {{ mostFrequent._id === 'Positivo' ? '😊' : 
@@ -131,7 +131,7 @@ onMounted(fetchEmotionalStats);
     <div class="stats-grid">
       <!-- Tarjeta 1: Distribución de emociones -->
       <div class="stat-card">
-        <h3>Emotional Distribution</h3>
+        <h3>Distribución emocional</h3>
         <div class="emotion-distribution">
           <div v-for="trend in emotionalTrends" :key="trend.date" class="trend-item">
             <div class="date">{{ new Date(trend.date).toLocaleDateString() }}</div>
@@ -164,7 +164,7 @@ onMounted(fetchEmotionalStats);
 
       <!-- Tarjeta 2: Tendencias -->
       <div class="stat-card">
-        <h3>Emotional Trend</h3>
+        <h3>Tendencia Emocional</h3>
         <div class="trend-graph">
 
           <!-- Puntos del gráfico posicionados dinámicamente -->

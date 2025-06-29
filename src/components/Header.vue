@@ -13,7 +13,7 @@ const logout = () => {
 <template>
   <header class="header">
     <div class="header-content">
-      <h1>My Personal Blog</h1>
+      <h1>Mi Blog Personal</h1>
       <button v-if="$route.path === '/dashboard'" @click="logout" class="logout-btn">
         Logout
       </button>

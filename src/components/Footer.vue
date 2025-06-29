@@ -1,7 +1,7 @@
 <template>
     <footer class="footer">
       <div class="footer-content">
-        <p>&copy; {{ new Date().getFullYear() }} My Personal Blog. All rights reserved.</p>
+        <p>&copy; {{ new Date().getFullYear() }} Mi Blog Personal. All rights reserved.</p>
       </div>
     </footer>
 </template>
