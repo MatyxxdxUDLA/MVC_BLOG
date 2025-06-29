@@ -13,12 +13,15 @@ interface Post {
   _id: string;
   title: string;
   content: string;
-  emotion?: Emotion;
+  emotion: Emotion;
   createdAt: string;
 }
 
 const posts = ref<Post[]>([]);
-const newPost = ref({ title: '', content: '', emotion: 'Neutral' });
+const newPost = ref({
+  title: '',
+  content: '',
+  emotion: 'Neutral', });
 const editingPost = ref<string | null>(null);
 const message = ref<string>('');
 const router = useRouter();
@@ -233,7 +236,7 @@ onMounted((): void => {
           <template v-if="editingPost === post._id">
             <input v-model="post.title" class="input-field" />
             <textarea v-model="post.content" class="textarea-field"></textarea>
-            <select v-model="post.emotion?.name" class="input-field">
+            <select v-model="post.emotion.name" class="input-field">
               <option value="Positivo">Positive 😊</option>
               <option value="Neutral">Neutral 😐</option>
               <option value="Negativo">Negative 😔</option>
