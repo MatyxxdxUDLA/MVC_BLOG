@@ -29,7 +29,7 @@ mongoose.connect(MONGODB_URI)
   })
   .catch(err => console.error('MongoDB connection error:', err));
 
-  // Middlewares
+// Middlewares
 app.use(compression());
 app.use(cors());
 app.use(express.json());
