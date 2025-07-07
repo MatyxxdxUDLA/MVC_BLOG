@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { authController } from './controllers/authController.js';
 import { postController } from './controllers/postController.js';
 import { statsController } from './controllers/statsController.js';
+import { wellnessController } from './controllers/wellnessController.js';
 import { auth } from './middleware/auth.js';
 import { initializeDefaultUser } from './models/User.js';
 import compression from 'compression';
@@ -45,6 +46,14 @@ app.get('/api/posts/search', auth, postController.search);
 app.delete('/api/posts/:id', auth, postController.delete);
 app.get('/api/stats/emotional', auth, statsController.getEmotionalStats);
 app.get('/api/stats/emotions-range', auth, statsController.getEmotionsRangeDate);
+
+// Rutas de la API de Wellness
+app.get('/api/wellness/dashboard', auth, wellnessController.getDashboard);
+app.get('/api/wellness/metrics', auth, wellnessController.getDetailedMetrics);
+app.get('/api/wellness/compare', auth, wellnessController.getComparativeAnalysis);
+app.get('/api/wellness/trends', auth, wellnessController.getHistoricalTrends);
+app.get('/api/wellness/patterns', auth, wellnessController.getPatternAnalysis);
+app.get('/api/wellness/forecast', auth, wellnessController.getWellnessForecast);
 
 // Manejo de rutas del frontend (Vue Router)
 app.get('*', (req, res) => {

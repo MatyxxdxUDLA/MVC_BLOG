@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginForm from './components/LoginForm.vue';
 import BlogDashboard from './components/BlogDashboard.vue';
 import EmotionalStats from './components/EmotionalStats.vue';
+import WellnessDashboard from './components/WellnessDashboard.vue';
 
 const routes = [
   { path: '/', component: LoginForm },
@@ -13,6 +14,11 @@ const routes = [
   {
     path: '/stats',
     component: EmotionalStats,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/wellness',
+    component: WellnessDashboard,
     meta: { requiresAuth: true }
   }
 ];
