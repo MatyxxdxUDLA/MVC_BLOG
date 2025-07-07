@@ -1,5 +1,5 @@
 <template>
-    <nav class="navigation" v-if="$route.path === '/dashboard' || $route.path === '/stats' || $route.path === '/wellness'">
+    <nav class="navigation" v-if="$route.path === '/dashboard' || $route.path === '/stats' || $route.path === '/favorites'">
       <div class="nav-content">
         <ul>
           <li>
@@ -9,7 +9,7 @@
             <router-link to="/stats" class="nav-link">Estadísticas</router-link>
           </li>
           <li>
-            <router-link to="/wellness" class="nav-link">🧘 Bienestar</router-link>
+            <router-link to="/favorites" class="nav-link">★ Favoritos</router-link>
           </li>
         </ul>
       </div>

@@ -15,6 +15,7 @@ interface Post {
   content: string;
   emotion: Emotion;
   createdAt: string;
+  isFavorite?: boolean;
 }
 
 const posts = ref<Post[]>([]);
@@ -42,7 +43,16 @@ const fetchPosts = async (): Promise<void> => {
     });
     const data = await response.json();
     if (data.success) {
-      posts.value = data.posts as Post[];
+      const postsWithFavorites = await Promise.all(
+        data.posts.map(async (post: Post) => {
+          const favResponse = await fetch(`${API_BASE_URL}/api/favorites/status/${post._id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const favData = await favResponse.json();
+          return { ...post, isFavorite: favData.isFavorite || false };
+        })
+      );
+      posts.value = postsWithFavorites;
     }
   } catch (error) {
     message.value = 'Error encontrando posts';
@@ -158,6 +168,34 @@ const deletePost = async (postId: string): Promise<void> => {
   }
 };
 
+const toggleFavorite = async (postId: string): Promise<void> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/favorites/toggle/${postId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const data = await response.json();
+    if (data.success) {
+      // Actualizar el estado local del post
+      const postIndex = posts.value.findIndex((p: Post) => p._id === postId);
+      if (postIndex !== -1) {
+        posts.value[postIndex].isFavorite = data.isFavorite;
+      }
+      message.value = data.message;
+
+      // Borrar el mensaje después de 3 segundos
+      setTimeout(() => {
+        message.value = '';
+      }, 3000);
+    }
+  } catch (error) {
+    message.value = 'Error al actualizar favorito';
+    console.error('Toggle favorite error:', error);
+  }
+};
+
 /*
 const logout = (): void => {
   localStorage.removeItem('token');
@@ -256,6 +294,13 @@ onMounted((): void => {
               </p>
             </div>
             <div class="post-actions">
+              <button 
+                @click="toggleFavorite(post._id)" 
+                class="action-btn favorite"
+                :class="{ active: post.isFavorite }"
+              >
+                {{ post.isFavorite ? '★' : '☆' }} Favorito
+              </button>
               <button @click="editingPost = post._id" class="action-btn edit">Editar</button>
               <button @click="deletePost(post._id)" class="action-btn delete">Eliminar</button>
             </div>
@@ -408,6 +453,26 @@ onMounted((): void => {
 .action-btn.cancel {
   background-color: #6c757d;
   color: white;
+}
+
+.action-btn.favorite {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
+}
+
+.action-btn.favorite.active {
+  background-color: #ffc107;
+  color: #212529;
+  border-color: #ffc107;
+}
+
+.action-btn.favorite:hover {
+  background-color: #e9ecef;
+}
+
+.action-btn.favorite.active:hover {
+  background-color: #ffcd39;
 }
 
 .message {
