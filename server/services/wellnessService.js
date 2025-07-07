@@ -300,10 +300,10 @@ export const wellnessService = {
       }).sort({ createdAt: -1 });
 
       // Calcular métricas individuales
-      const emotionalBalance = this.calculateEmotionalBalance(emotions);
-      const writingConsistency = this.calculateWritingConsistency(posts);
-      const positivityRatio = this.calculatePositivityRatio(emotions);
-      const selfReflectionDepth = this.calculateSelfReflectionDepth(posts);
+      const emotionalBalance = wellnessService.calculateEmotionalBalance(emotions);
+      const writingConsistency = wellnessService.calculateWritingConsistency(posts);
+      const positivityRatio = wellnessService.calculatePositivityRatio(emotions);
+      const selfReflectionDepth = wellnessService.calculateSelfReflectionDepth(posts);
       
       const metrics = {
         emotionalBalance,
@@ -312,7 +312,7 @@ export const wellnessService = {
         selfReflectionDepth
       };
 
-      const wellnessScore = this.calculateWellnessScore(metrics);
+      const wellnessScore = wellnessService.calculateWellnessScore(metrics);
 
       // Calcular salud emocional
       const balance = {
@@ -321,10 +321,10 @@ export const wellnessService = {
         negative: emotions.filter(e => e.score < 0).length
       };
 
-      const volatility = this.calculateEmotionalVolatility(emotions);
-      const recovery = this.calculateEmotionalRecovery(emotions);
-      const streaks = await this.calculateStreaks(userId);
-      const patterns = this.identifyPatterns(posts, emotions);
+      const volatility = wellnessService.calculateEmotionalVolatility(emotions);
+      const recovery = wellnessService.calculateEmotionalRecovery(emotions);
+      const streaks = await wellnessService.calculateStreaks(userId);
+      const patterns = wellnessService.identifyPatterns(posts, emotions);
 
       // Calcular tendencia comparando con período anterior
       const previousPeriodStart = new Date(startDate);
